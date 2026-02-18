@@ -225,5 +225,8 @@ app.post("/send-payslips", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+const PORT = process.env.PORT || 5000;
 
-app.listen(5000, () => console.log("🚀 Server running on http://localhost:5000"));
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on port ${PORT}`)
+);
