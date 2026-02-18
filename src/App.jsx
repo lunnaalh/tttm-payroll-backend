@@ -93,14 +93,14 @@ export default function App() {
     setSending(true);
 
     try {
-      const response = await fetch(
-        "tttm-payroll-backend-production.up.railway.app",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ rows }),
-        }
-      );
+   const response = await fetch(
+  "https://tttm-payroll-backend-production.up.railway.app/send-payslips",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ rows }),
+  }
+);
 
       const data = await response.json();
 
