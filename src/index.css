@@ -1,0 +1,217 @@
+* {
+  box-sizing: border-box;
+  font-family: "Inter", system-ui, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f7fb;
+  color: #0f172a;
+}
+
+.login {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: white;
+}
+
+.login h1 {
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+.login input {
+  width: 260px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  margin: 6px 0;
+}
+
+.login button {
+  width: 260px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  margin-top: 10px;
+  background: #0f172a;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.login button:hover {
+  background: #1e293b;
+}
+
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 230px;
+  background: #0f172a;
+  color: #f9fafb;
+  padding: 25px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h2 {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.sidebar p {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-bottom: 30px;
+}
+
+.sidebar button {
+  margin-top: auto;
+  background: #1e293b;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  color: white;
+  cursor: pointer;
+}
+
+.main {
+  flex: 1;
+  padding: 30px 40px;
+}
+
+.main h1 {
+  font-size: 22px;
+  margin-bottom: 15px;
+}
+
+.main input[type="file"] {
+  background: white;
+  border: 1px dashed #cbd5f5;
+  padding: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin: 25px 0;
+}
+
+.card {
+  border-radius: 12px;
+  padding: 18px;
+  color: white;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.card h3 {
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.card p {
+  font-size: 22px;
+  margin-top: 8px;
+  font-weight: 700;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+}
+
+thead {
+  background: #f1f5f9;
+}
+
+th, td {
+  padding: 14px;
+  text-align: left;
+  font-size: 14px;
+}
+
+th {
+  font-weight: 600;
+  color: #475569;
+}
+
+tbody tr:hover {
+  background: #f8fafc;
+}
+
+.bold {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+}
+
+.gen,
+.pdf {
+  background: #0f172a;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.gen:hover,
+.pdf:hover {
+  background: #1e293b;
+}
+.excel-wrap {
+  overflow: auto;
+  max-height: 70vh;
+  border: 1px solid #334155;
+}
+
+.excel {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+  background: #020617;
+  color: #e2e8f0;
+}
+
+.excel td {
+  border: 1px solid #334155;
+  padding: 6px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.wa {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  margin-left: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+

@@ -1,0 +1,35 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+}
+
+.login {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+input {
+  margin: 8px;
+  padding: 10px;
+  width: 250px;
+  border-radius: 6px;
+  border: none;
+}
+
+button {
+  margin: 8px;
+  padding: 10px 20px;
+  background: #38bdf8;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.error {
+  color: #f87171;
+}
