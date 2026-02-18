@@ -94,7 +94,7 @@ export default function App() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/send-payslips",
+        "tttm-payroll-backend-production.up.railway.app",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
