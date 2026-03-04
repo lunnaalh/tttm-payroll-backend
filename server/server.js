@@ -17,7 +17,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 
-// Initialize Brevo API
 const apiInstance = new brevo.TransactionalEmailsApi();
 apiInstance.setApiKey(
   brevo.TransactionalEmailsApiApiKeys.apiKey,
@@ -40,18 +39,16 @@ function buildPDF(r) {
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    // --- SMART GETVALUE (Ignores extra spaces in Excel) ---
     const getValue = (key) => {
       if (!r) return 0;
       const searchKey = key.toLowerCase().replace(/\s/g, '');
-      const actualKey = Object.keys(r).find(k => 
+      const actualKey = Object.keys(r).find(k =>
         k.toLowerCase().replace(/\s/g, '') === searchKey
       );
-
       let val = r[actualKey];
       if (val === undefined || val === null || val === "") return 0;
       if (typeof val === "string") {
-        return Number(val.replace(/Rp\s*/g, "").replace(/\./g, "").trim()) || 0;
+        return Number(val.replace(/Rp\s*/g, "").replace(/\./g, "").replace(/,/g, "").trim()) || 0;
       }
       return Number(val) || 0;
     };
@@ -96,6 +93,8 @@ function buildPDF(r) {
 
     /* ========== TABLES ========== */
     const col1X = 40, col2X = 215, col3X = 390, colWidth = 165;
+    const ROW_HEIGHT = 14;
+
     doc.roundedRect(col1X, y, colWidth, 22, 2).fillAndStroke("#003D5C", "#003D5C");
     doc.roundedRect(col2X, y, colWidth, 22, 2).fillAndStroke("#003D5C", "#003D5C");
     doc.roundedRect(col3X, y, colWidth, 22, 2).fillAndStroke("#003D5C", "#003D5C");
@@ -108,6 +107,7 @@ function buildPDF(r) {
 
     const income = [
       ["Basic Salary", getValue("BasicSalary")],
+      ["THR Allow.", getValue("THRAllowance")],
       ["Yearly Working Allow.", getValue("YearlyWorkingAllowance")],
       ["Skill Allow.", getValue("SkillAllowance")],
       ["Meal Allow.", getValue("MealAllowance")],
@@ -130,11 +130,11 @@ function buildPDF(r) {
     ];
 
     doc.fontSize(7.5).font("Helvetica").fillColor("#333");
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < 10; i++) {
       if (i % 2 === 0) {
-        doc.rect(col1X, y - 2, colWidth, 16).fill("#fafafa");
-        if (i < deduction.length) doc.rect(col2X, y - 2, colWidth, 16).fill("#fafafa");
-        if (i < benefits.length) doc.rect(col3X, y - 2, colWidth, 16).fill("#fafafa");
+        doc.rect(col1X, y - 2, colWidth, ROW_HEIGHT).fill("#fafafa");
+        if (i < deduction.length) doc.rect(col2X, y - 2, colWidth, ROW_HEIGHT).fill("#fafafa");
+        if (i < benefits.length) doc.rect(col3X, y - 2, colWidth, ROW_HEIGHT).fill("#fafafa");
       }
       doc.fillColor("#333");
       doc.text(income[i][0], col1X + 5, y);
@@ -147,28 +147,27 @@ function buildPDF(r) {
         doc.text(benefits[i][0], col3X + 5, y);
         doc.text("Rp " + formatRp(benefits[i][1]), col3X + 85, y, { width: 75, align: "right" });
       }
-      y += 16;
+      y += ROW_HEIGHT;
     }
 
     y += 15;
-    
+
     /* ========== BENEFITS NOTE ========== */
     doc.fontSize(6.5).font("Helvetica-Oblique").fillColor("#666");
     doc.text("Benefits 100% supported by the company", col3X + 5, y, { width: colWidth - 10 });
     y += 10;
-    
+
     /* ========== TOTALS ROW ========== */
     doc.fontSize(8).font("Helvetica-Bold").fillColor("#1a1a1a");
     doc.text("TOTAL", col1X + 5, y);
     doc.text("Rp " + formatRp(getValue("TotalEarnings")), col1X + 85, y, { width: 75, align: "right" });
-    
     doc.text("TOTAL", col2X + 5, y);
     doc.text("Rp " + formatRp(getValue("Total deduction")), col2X + 85, y, { width: 75, align: "right" });
-    
     doc.text("TOTAL", col3X + 5, y);
     doc.text("Rp " + formatRp(getValue("Total  benefit")), col3X + 85, y, { width: 75, align: "right" });
 
     y += 25;
+
     /* ========== TAKE HOME PAY ========== */
     doc.roundedRect(280, y, 275, 35, 4).lineWidth(1.5).fillAndStroke("#f5f5f5", "#003D5C");
     doc.fontSize(10).font("Helvetica-Bold").fillColor("#1a1a1a").text("TAKE HOME PAY", 290, y + 8);
@@ -196,8 +195,6 @@ app.post("/send-payslips", async (req, res) => {
     for (const r of rows) {
       if (r.Email && r.Email.trim() !== "") {
         const pdfBuffer = await buildPDF(r);
-        
-        // Prepare Brevo email
         const sendSmtpEmail = new brevo.SendSmtpEmail();
         sendSmtpEmail.sender = { name: FROM_NAME, email: FROM_EMAIL };
         sendSmtpEmail.to = [{ email: r.Email.trim(), name: r.Name }];
@@ -209,24 +206,18 @@ app.post("/send-payslips", async (req, res) => {
             content: pdfBuffer.toString("base64"),
           },
         ];
-
-        // Send email via Brevo
         await apiInstance.sendTransacEmail(sendSmtpEmail);
         console.log(`✅ Email sent to: ${r.Name}`);
-        
-        // 1-SECOND DELAY to prevent rate limiting
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
-    
+
     res.json({ success: true });
   } catch (error) {
     console.error("❌ Server Error:", error);
     res.status(500).json({ error: error.message });
   }
 });
-const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () =>
-  console.log(`🚀 Server running on port ${PORT}`)
-);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
