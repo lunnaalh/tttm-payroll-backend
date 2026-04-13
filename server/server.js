@@ -63,7 +63,7 @@ function buildPDF(r) {
 
     /* ========== HEADER ========== */
     if (fs.existsSync(LOGO_PATH)) {
-      doc.image(LOGO_PATH, 40, y - 10, { width: 80 });
+      doc.image(LOGO_PATH, 40, y - 25, { width: 80 });
     }
 
     // Auto-generated date — computed at send time, no Excel input needed
@@ -233,4 +233,4 @@ app.post("/send-payslips", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));a
