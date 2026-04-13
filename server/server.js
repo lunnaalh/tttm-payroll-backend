@@ -65,11 +65,24 @@ function buildPDF(r) {
     if (fs.existsSync(LOGO_PATH)) {
       doc.image(LOGO_PATH, 40, y - 10, { width: 80 });
     }
+
+    // Auto-generated date — computed at send time, no Excel input needed
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }); // e.g. "13 April 2026"
+
     doc.fontSize(8).font("Helvetica").fillColor("#333")
       .text("Jl. Muding Batu Sangian IV no 10, Kerobokan", 280, y, { align: "right", width: 275 });
     y += 10;
     doc.text("Telp: 0361-419288 | www.ticketothemoon.com", 280, y, { align: "right", width: 275 });
-    y += 50;
+    y += 14;
+    doc.fontSize(9).font("Helvetica-Bold").fillColor("#003D5C")
+      .text(formattedDate, 280, y, { align: "right", width: 275 });
+    y += 26;
+
     doc.moveTo(40, y).lineTo(555, y).lineWidth(1).stroke("#dddddd");
     y += 15;
 
