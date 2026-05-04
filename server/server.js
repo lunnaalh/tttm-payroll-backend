@@ -57,11 +57,11 @@ function buildPDF(r) {
       return Number(val) || 0;
     };
 
-    const formatRp = (val) => {
-      const num = typeof val === 'number' ? val : getValue(val);
-      if (!num || num === 0) return "-";
-      return num.toLocaleString("id-ID");
-    };
+   const formatRp = (val) => {
+  const num = typeof val === 'number' ? val : getValue(val);
+  if (!num || num === 0) return "-";
+  return num.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+};
 
     let y = 28;
 
