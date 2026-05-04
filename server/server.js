@@ -47,9 +47,13 @@ function buildPDF(r) {
       );
       let val = r[actualKey];
       if (val === undefined || val === null || val === "") return 0;
-      if (typeof val === "string") {
-        return Number(val.replace(/Rp\s*/g, "").replace(/\./g, "").replace(/,/g, "").trim()) || 0;
-      }
+     if (typeof val === "string") {
+  const cleaned = val.replace(/Rp\s*/g, "").trim();
+  if (/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(cleaned)) {
+    return Number(cleaned.replace(/,/g, "")) || 0;
+  }
+  return Number(cleaned.replace(/\./g, "").replace(/,/g, ".")) || 0;
+}
       return Number(val) || 0;
     };
 
