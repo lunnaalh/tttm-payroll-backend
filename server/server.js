@@ -47,36 +47,34 @@ function buildPDF(r) {
       );
       let val = r[actualKey];
       if (val === undefined || val === null || val === "") return 0;
-     if (typeof val === "string") {
-  const cleaned = val.replace(/Rp\s*/g, "").trim();
-  if (/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(cleaned)) {
-    return Number(cleaned.replace(/,/g, "")) || 0;
-  }
-  return Number(cleaned.replace(/\./g, "").replace(/,/g, ".")) || 0;
-}
+      if (typeof val === "string") {
+        const cleaned = val.replace(/Rp\s*/g, "").trim();
+        if (/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(cleaned)) {
+          return Number(cleaned.replace(/,/g, "")) || 0;
+        }
+        return Number(cleaned.replace(/\./g, "").replace(/,/g, ".")) || 0;
+      }
       return Number(val) || 0;
     };
 
-   const formatRp = (val) => {
-  const num = typeof val === 'number' ? val : getValue(val);
-  if (!num || num === 0) return "-";
-  return num.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-};
+    const formatRp = (val) => {
+      const num = typeof val === 'number' ? val : getValue(val);
+      if (!num || num === 0) return "-";
+      return num.toLocaleString("id-ID", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    };
 
     let y = 28;
 
-    /* ========== HEADER ========== */
     if (fs.existsSync(LOGO_PATH)) {
       doc.image(LOGO_PATH, 40, y - 25, { width: 80 });
     }
 
-    // Auto-generated date — computed at send time, no Excel input needed
     const now = new Date();
     const formattedDate = now.toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "long",
       year: "numeric",
-    }); // e.g. "13 April 2026"
+    });
 
     doc.fontSize(8).font("Helvetica").fillColor("#333")
       .text("Jl. Muding Batu Sangian IV no 10, Kerobokan", 280, y, { align: "right", width: 275 });
@@ -94,7 +92,6 @@ function buildPDF(r) {
       .text("SALARY SLIP", 0, y, { align: "center" });
     y += 25;
 
-    /* ========== EMPLOYEE INFO ========== */
     doc.roundedRect(40, y, 515, 60, 3).fillAndStroke("#f5f5f5", "#003D5C");
     y += 10;
     doc.fontSize(8).font("Helvetica").fillColor("#333");
@@ -108,7 +105,6 @@ function buildPDF(r) {
     doc.text("Location: " + (r.Location || "-"), 300, y);
     y += 18;
 
-    /* ========== TABLES ========== */
     const col1X = 40, col2X = 215, col3X = 390, colWidth = 165;
     const ROW_HEIGHT = 14;
 
@@ -169,12 +165,10 @@ function buildPDF(r) {
 
     y += 15;
 
-    /* ========== BENEFITS NOTE ========== */
     doc.fontSize(6.5).font("Helvetica-Oblique").fillColor("#666");
     doc.text("Benefits 100% supported by the company", col3X + 5, y, { width: colWidth - 10 });
     y += 10;
 
-    /* ========== TOTALS ROW ========== */
     doc.fontSize(8).font("Helvetica-Bold").fillColor("#1a1a1a");
     doc.text("TOTAL", col1X + 5, y);
     doc.text("Rp " + formatRp(getValue("TotalEarnings")), col1X + 85, y, { width: 75, align: "right" });
@@ -185,12 +179,10 @@ function buildPDF(r) {
 
     y += 25;
 
-    /* ========== TAKE HOME PAY ========== */
     doc.roundedRect(280, y, 275, 35, 4).lineWidth(1.5).fillAndStroke("#f5f5f5", "#003D5C");
     doc.fontSize(10).font("Helvetica-Bold").fillColor("#1a1a1a").text("TAKE HOME PAY", 290, y + 8);
     doc.fontSize(14).text("Rp " + formatRp(getValue("NetPay")), 290, y + 18, { width: 255, align: "right" });
 
-    /* ========== SIGNATURE ========== */
     const signY = y + 55;
     const signX = 420;
     if (fs.existsSync(STAMP_PATH)) {
@@ -232,6 +224,44 @@ app.post("/send-payslips", async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     console.error("❌ Server Error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ========== FEDEX ==========
+async function getFedExToken() {
+  const response = await fetch("https://apis-sandbox.fedex.com/oauth/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `grant_type=client_credentials&client_id=${process.env.FEDEX_API_KEY}&client_secret=${process.env.FEDEX_SECRET_KEY}`
+  });
+  const data = await response.json();
+  return data.access_token;
+}
+
+app.post("/track-shipment", async (req, res) => {
+  try {
+    const { awb, carrier } = req.body;
+    if (carrier !== "FedEx") return res.json({ error: "Not a FedEx shipment" });
+
+    const token = await getFedExToken();
+
+    const response = await fetch("https://apis-sandbox.fedex.com/track/v1/trackingnumbers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        includeDetailedScans: true,
+        trackingInfo: [{ trackingNumberInfo: { trackingNumber: awb } }]
+      })
+    });
+
+    const data = await response.json();
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error("FedEx error:", error);
     res.status(500).json({ error: error.message });
   }
 });
