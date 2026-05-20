@@ -230,7 +230,7 @@ app.post("/send-payslips", async (req, res) => {
 
 // ========== FEDEX ==========
 async function getFedExToken() {
-  const response = await fetch("https://apis-sandbox.fedex.com/oauth/token", {
+  const response = await fetch("https://apis.fedex.com/oauth/token", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: `grant_type=client_credentials&client_id=${process.env.FEDEX_API_KEY}&client_secret=${process.env.FEDEX_SECRET_KEY}`
@@ -246,7 +246,7 @@ app.post("/track-shipment", async (req, res) => {
 
     const token = await getFedExToken();
 
-    const response = await fetch("https://apis-sandbox.fedex.com/track/v1/trackingnumbers", {
+    const response = await fetch("https://apis.fedex.com/track/v1/trackingnumbers", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
