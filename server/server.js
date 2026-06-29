@@ -195,6 +195,7 @@ function buildPDF(r) {
     // Col 21: Excessive Absence / absent berlebihan
     // Col 22: Advance cash
     const deduction = [
+      ["Target Not Achieved",  getValue("Tidak memenuhi Target")],
       ["Excessive Absence",   getValue("Excessive Absence/ absent berlebihan'") || getValue("ExcessiveAbsence") || getValue("Other Deductions")],
       ["Advance Cash",        getValue("Advance cash") || getValue("Adv cash deductions")],
     ];
