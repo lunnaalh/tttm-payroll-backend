@@ -316,13 +316,17 @@ function buildPDF(r) {
 }
 
 app.post("/send-payslips", async (req, res) => {
-  try {
-    const { rows } = req.body;
-    if (!rows || rows.length === 0) {
-      return res.status(400).json({ error: "No data received" });
-    }
+  const { rows } = req.body;
+  if (!rows || rows.length === 0) {
+    return res.status(400).json({ error: "No data received" });
+  }
 
-    for (const r of rows) {
+  // Respond immediately so the frontend doesn't time out
+  res.json({ success: true, message: "Email sending started", count: rows.length });
+
+  // Continue sending emails in the background
+  for (const r of rows) {
+    try {
       const email = r.Email || r["email address"] || r["emailaddress"] || "";
       const name  = r.Name  || r["NAME"] || "";
       if (email.trim() !== "") {
@@ -342,13 +346,12 @@ app.post("/send-payslips", async (req, res) => {
         console.log(`✅ Email sent to: ${name}`);
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
+    } catch (err) {
+      console.error(`❌ Failed to send to ${r["NAME"] || "unknown"}:`, err.message);
     }
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error("❌ Server Error:", error);
-    res.status(500).json({ error: error.message });
   }
+
+  console.log("✅ Finished sending all payslip emails.");
 });
 
 const PORT = process.env.PORT || 5000;
